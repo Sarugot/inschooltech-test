@@ -1,0 +1,37 @@
+version: '3.8'
+services:
+
+  db:
+    image: sarugot/inschooltech-db:latest
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - "test-data:/var/lib/postgresql/data"
+    ports:
+      - "5432:5432"
+    env_file:
+      - ./.env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 4G
+
+  api:
+    image: sarugot/inschooltech-api:latest
+    restart: always
+    env_file:
+      - ./.env
+
+volumes:
+  test-data:

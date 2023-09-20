@@ -1,7 +1,34 @@
+from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
 
 from indicators.models import Score
 from public.models import Test
+from users.models import User
+
+
+class CustomUserCreateSerializer(UserCreateSerializer):
+    """Видоизменённый сериализатор создания пользователя djoser."""
+    class Meta:
+        model = User
+        fields = (
+            'email', 'id', 'username', 'password',
+        )
+
+
+class CustomUserSerializer(UserSerializer):
+    """Видоизменённый сериализатор пользователя djoser."""
+
+    class Meta:
+        model = User
+        fields = (
+            'id', 'email', 'username'
+        )
+
+    def get_is_subscribed(self, obj):
+        user = self.context.get('request').user
+        return user.is_authenticated and user.followers.filter(
+            author=obj.id
+        ).exists()
 
 
 class ScoresSerializer(serializers.ModelSerializer):

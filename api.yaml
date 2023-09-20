@@ -1,0 +1,61 @@
+openapi: 3.0.3
+info:
+  title: 'inschooltech_test'
+  version: 1.0.0
+servers:
+  - url: /api
+paths:
+  /results:
+    get:
+      tags:
+        - Results
+      summary: show test results
+      description: show results for active and completed tests
+      responses:
+        '200':
+          description: returns a list of test results
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Results"
+        '400':
+          description: Bad request, for any other error. Error reason in logs.
+        '401':
+          description: Non-authorized user.
+
+components:
+  schemas:
+    Results:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        lab_id:
+          type: string
+          format: uuid
+        duration_seconds:
+          type: int
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResultsArray'
+
+    ResultsArray:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        score:
+          type: int
+        indicator_name:
+          type: string
+        metric_name:
+          type: string
+        metric_unit:
+          type: string
+        is_within_normal_range:
+          type: boolean

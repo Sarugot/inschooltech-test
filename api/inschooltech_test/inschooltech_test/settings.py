@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
+
 import os
 
 from dotenv import load_dotenv
@@ -29,7 +30,12 @@ SECRET_KEY = 'django-insecure-7m%edqc!$o&5s-@nm+nx=4nqkx_#%xn*wq+6hq(gdk*k$-r+&^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    '[::1]',
+    'testserver',
+]
 
 
 # Application definition
@@ -41,9 +47,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'rest_framework.authtoken',
     'indicators',
     'public',
+    'users',
     'django_filters',
+    'djoser',
 ]
 
 MIDDLEWARE = [
@@ -82,8 +92,12 @@ WSGI_APPLICATION = 'inschooltech_test.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.postgresql'),
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('POSTGRES_USER'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT')
     }
 }
 
@@ -128,3 +142,31 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+AUTH_USER_MODEL = 'users.User'
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+    'TEST_REQUEST_DEFAULT_FORMAT': 'json',
+}
+
+
+DJOSER = {
+    'SERIALIZERS': {
+        'user': 'indicators.serializers.CustomUserSerializer',
+        'user_create': 'indicators.serializers.CustomUserCreateSerializer',
+        'current_user': 'indicators.serializers.CustomUserSerializer',
+    },
+    'PERMISSIONS': {
+        'user': ['djoser.permissions.CurrentUserOrAdminOrReadOnly'],
+        'user_list': ['rest_framework.permissions.AllowAny']
+    },
+    'HIDE_USERS': False,
+}
+
+TEST_RUNNER = 'inschooltech_test.tests.runner.PostgresSchemaTestRunner'

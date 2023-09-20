@@ -151,6 +151,12 @@ class Score(models.Model):
         db_table = u'"indicators\".\"scores"'
         verbose_name = 'Результат'
         verbose_name_plural = 'Результаты'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['test_id', 'indicator_metric_id'],
+                name='unique_test_indicator_metric'
+            )
+        ]
 
     def __str__(self):
         return str(self.id)
