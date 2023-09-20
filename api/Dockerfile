@@ -6,6 +6,6 @@ COPY requirements.txt .
 
 RUN pip3 install -r requirements.txt --no-cache-dir
 
-COPY inschooltech_test/ .
+COPY api/inschooltech_test/ .
 
 CMD ["gunicorn", "inschooltech_test.wsgi:application", "--bind", "0:8000" ]
